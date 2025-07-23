@@ -18,6 +18,18 @@ The Final Year Project Management System (FYPMS) is a comprehensive web applicat
 ![Student Dashboard](screenshots/user_dashboard.png)
 *Student dashboard showing upcoming events, document submission progress, and quick access to system features.*
 
+### Supervisor Dashboard
+![Supervisor Dashboard](screenshots/supervisor_dashboard.png)
+*Supervisor dashboard displaying total students supervised and upcoming document deadlines.*
+
+### Student Progress Tracking
+![Student Progress](screenshots/supervisor_studentprogress.png)
+*Comprehensive view for supervisors to track student progress, document submissions, and deadlines.*
+
+### Admin Dashboard
+![Admin Dashboard](screenshots/admin_dashboard.png)
+*Administrative overview showing system statistics, user management, and document deadline monitoring.*
+
 ## Key Features
 
 ### For Students
