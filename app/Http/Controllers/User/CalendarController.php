@@ -19,8 +19,8 @@ class CalendarController extends Controller
         // Find user's registration info
         $registration = $user->registration;
 
-        $year = $registration?->input('year');
-        $semester = $registration?->input('semester');
+        $year = $registration?->year;
+        $semester = $registration?->semester;
 
         $documentEvents = [];
 

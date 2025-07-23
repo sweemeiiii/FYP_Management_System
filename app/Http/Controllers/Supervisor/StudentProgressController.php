@@ -31,11 +31,11 @@ class StudentProgressController extends Controller
 
         // Apply filters
         if ($request->filled('year')) {
-            $query->where('year', $request->input('year'));
+            $query->where('year', $request->year);
         }
 
         if ($request->filled('semester')) {
-            $query->where('semester', $request->input('semester'));  // Match string exactly, e.g., "Semester 1"
+            $query->where('semester', $request->semester);  // Match string exactly, e.g., "Semester 1"
         }
 
         $registrations = $query->get();
@@ -59,7 +59,7 @@ class StudentProgressController extends Controller
                     }
                 }
 
-                $dueDate = optional($requirements[$doc])->input('due_date');
+                $dueDate = optional($requirements[$doc])->due_date;
 
                 $status = 'pending';
                 if ($matchedDoc) {
@@ -100,7 +100,7 @@ class StudentProgressController extends Controller
         }
 
         $extension = pathinfo($filePath, PATHINFO_EXTENSION);
-        $filename = $document->input('title') . '.' . $extension;
+        $filename = $document->title . '.' . $extension;
 
         return response()->download(storage_path("app/public/{$filePath}"), $filename);
     }
