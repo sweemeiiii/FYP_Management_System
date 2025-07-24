@@ -59,9 +59,9 @@ class CalendarController extends Controller
        
         $event = Event::create([
             'user_id' => Auth::id(),
-            'title' => $request->input('title'),
-            'start' => $request->input('start'),
-            'end' => $request->input('end'),
+            'title' => $request->title,
+            'start' => $request->start,
+            'end' => $request->end,
         ]);
 
         return response()->json($event);
@@ -75,11 +75,11 @@ class CalendarController extends Controller
                          ->firstOrFail();
 
             // Convert ISO 8601 dates to MySQL format
-            $startDate = Carbon::parse($request->input('start'))->format('Y-m-d H:i:s');
-            $endDate = $request->input('end') ? Carbon::parse($request->input('end'))->format('Y-m-d H:i:s') : $startDate;
+            $startDate = Carbon::parse($request->start)->format('Y-m-d H:i:s');
+            $endDate = $request->end ? Carbon::parse($request->end)->format('Y-m-d H:i:s') : $startDate;
 
             $event->update([
-                'title' => $request->input('title'),
+                'title' => $request->title,
                 'start' => $startDate,
                 'end' => $endDate,
             ]);
@@ -98,7 +98,7 @@ class CalendarController extends Controller
 
     public function deleteEvent(Request $request)
     {
-        $event = Event::where('id', $request->input('id'))->where('user_id', Auth::id())->firstOrFail();
+        $event = Event::where('id', $request->id)->where('user_id', Auth::id())->firstOrFail();
         $event->delete();
 
         return response()->json(['success' => true]);

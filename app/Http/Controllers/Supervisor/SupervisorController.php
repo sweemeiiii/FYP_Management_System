@@ -51,13 +51,13 @@ class SupervisorController extends Controller
                                     ->where('supervisor_id', Auth::id())
                                     ->firstOrFail();
 
-        $action = $request->input('action');
+        $action = $request->action;
 
         if ($action === 'approve') {
             // Check if already 5 students are approved for this semester
             $approvedCount = Registration::where('supervisor_id', Auth::id())
-                ->where('year', $registration->input('year'))
-                ->where('semester', $registration->input('semester'))
+                ->where('year', $registration->year)
+                ->where('semester', $registration->semester)
                 ->where('status', 'approved')
                 ->count();
 
@@ -72,8 +72,8 @@ class SupervisorController extends Controller
     public function approval(Request $request)
     {
         $supervisorId = Auth::id();
-        $year = $request->input('year');
-        $semester = $request->input('semester');
+        $year = $request->year;
+        $semester = $request->semester;
 
         $query = Registration::with('student')
             ->where('supervisor_id', $supervisorId);

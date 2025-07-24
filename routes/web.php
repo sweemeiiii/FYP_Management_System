@@ -112,6 +112,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/documents/upload', [DocumentController::class, 'create'])->name('documents.create');
     Route::post('/documents/store', [DocumentController::class, 'store'])->name('documents.store');
     Route::get('/documents/{id}/edit', [DocumentController::class, 'edit'])->name('user.documents.edit');
+    Route::get('/documents/{id}', [DocumentController::class, 'show'])->name('user.documents.show');
     Route::put('/documents/{id}', [DocumentController::class, 'update'])->name('user.documents.update');
     Route::delete('/documents/{id}', [DocumentController::class, 'destroy'])->name('user.documents.destroy');
     Route::get('user/documents', [DocumentController::class, 'index'])->name('user.documents.index');
@@ -135,11 +136,15 @@ Route::middleware(['auth'])->group(function () {
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/supervisor/student-progress', [\App\Http\Controllers\Supervisor\StudentProgressController::class, 'index'])->name('supervisor.student_progress.index');
+    Route::get('/supervisor/student-progress/fyp1', [\App\Http\Controllers\Supervisor\StudentProgressController::class, 'fyp1'])->name('supervisor.student_progress.fyp1');
+    Route::get('/supervisor/student-progress/fyp2', [\App\Http\Controllers\Supervisor\StudentProgressController::class, 'fyp2'])->name('supervisor.student_progress.fyp2');
     Route::get('/supervisor/download/{document}', [\App\Http\Controllers\Supervisor\StudentProgressController::class, 'download'])->name('supervisor.document.download');
 });
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/admin/student-progress', [\App\Http\Controllers\Admin\StudentProgressController::class, 'index'])->name('admin.student_progress.index');
+    Route::get('/admin/student-progress/fyp1', [\App\Http\Controllers\Admin\StudentProgressController::class, 'fyp1'])->name('admin.student_progress.fyp1');
+    Route::get('/admin/student-progress/fyp2', [\App\Http\Controllers\Admin\StudentProgressController::class, 'fyp2'])->name('admin.student_progress.fyp2');
     Route::get('/admin/download/{document}', [\App\Http\Controllers\Admin\StudentProgressController::class, 'download'])->name('admin.document.download');
 });
 

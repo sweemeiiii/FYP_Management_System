@@ -16,9 +16,7 @@
                         <option value="">-- Select Title --</option>
                         <option value="Proposal">Proposal</option>
                         <option value="SRS">SRS</option>
-                        <option value="SDS">SDS</option>
                         <option value="Final Report">Final Report</option>
-                        <option value="TurnItIn">TurnItIn</option>
                         <option value="Presentation Slide">Presentation Slide</option>
                     </select>
                 </div>

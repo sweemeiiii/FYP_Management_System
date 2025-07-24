@@ -66,9 +66,14 @@
                             <td class="px-4 py-2">{{ $registration->student->name }}</td>
                             <td class="px-4 py-2">{{ $registration->student->email }}</td>
                             <td class="px-4 py-2">
-                                <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">
-                                    {{ $fypLabel }}
-                                </span>
+                            @php
+                                $badgeClass = $registration->semester === 'Semester 1'
+                                    ? 'bg-blue-100 text-blue-800'
+                                    : 'bg-purple-100 text-purple-800';
+                            @endphp
+                            <span class="{{ $badgeClass }} text-xs font-medium px-2.5 py-0.5 rounded">
+                                {{ $fypLabel }}
+                            </span>
                             </td>
                             <td class="px-4 py-2 text-sm text-gray-600">
                                 {{ \Carbon\Carbon::parse($registration->created_at)->format('d M Y, h:i A') }}
@@ -121,9 +126,14 @@
                             <td class="px-4 py-2">{{ $registration->student->name }}</td>
                             <td class="px-4 py-2">{{ $registration->student->email }}</td>
                             <td class="px-4 py-2">
-                                <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">
-                                    {{ $fypLabel }}
-                                </span>
+                            @php
+                                $badgeClass = $registration->semester === 'Semester 1'
+                                    ? 'bg-blue-100 text-blue-800'
+                                    : 'bg-purple-100 text-purple-800';
+                            @endphp
+                            <span class="{{ $badgeClass }} text-xs font-medium px-2.5 py-0.5 rounded">
+                                {{ $fypLabel }}
+                            </span>
                             </td>
                             <td class="px-4 py-2 text-sm text-gray-600">
                                 {{ \Carbon\Carbon::parse($registration->updated_at)->format('d M Y, h:i A') }}
@@ -161,10 +171,16 @@
                             <td class="px-4 py-2">{{ $registration->student->name }}</td>
                             <td class="px-4 py-2">{{ $registration->student->email }}</td>
                             <td class="px-4 py-2">
-                                <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">
-                                    {{ $fypLabel }}
-                                </span>
+                            @php
+                                $badgeClass = $registration->semester === 'Semester 1'
+                                    ? 'bg-blue-100 text-blue-800'
+                                    : 'bg-purple-100 text-purple-800';
+                            @endphp
+                            <span class="{{ $badgeClass }} text-xs font-medium px-2.5 py-0.5 rounded">
+                                {{ $fypLabel }}
+                            </span>
                             </td>
+
                             <td class="px-4 py-2 text-sm text-gray-600">
                                 {{ \Carbon\Carbon::parse($registration->updated_at)->format('d M Y, h:i A') }}
                             </td>

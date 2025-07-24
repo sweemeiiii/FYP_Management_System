@@ -10,56 +10,45 @@ use App\Models\DocumentRequirement;
 use Illuminate\Support\Facades\Storage;
 
 class StudentProgressController extends Controller
-{
-    public function index(Request $request)
+{    
+    public function index()
+    {
+        return redirect()->route('admin.student_progress.fyp1');
+    }
+
+    public function fyp1(Request $request)
+    {
+        return $this->handleFYP($request, 'Semester 1');
+    }
+
+    public function fyp2(Request $request)
+    {
+        return $this->handleFYP($request, 'Semester 2');
+    }
+
+    private function handleFYP(Request $request, $semester)
     {
         $students = User::with(['documents', 'registration.supervisor'])
             ->where('usertype', 'user')
-            ->where('active_status', 1) //only show active students 
-            ->orderBy('created_at', 'desc')->get()
-            ->filter(function ($student) use ($request) {
-                $reg = $student->registration;
+            ->where('active_status', 1)
+            ->whereHas('registration', fn($q) => $q->where('semester', $semester));
 
-                // If no filter applied, include all
-                if (!$request->filled('year') && !$request->filled('semester') && !$request->filled('supervisor_id')) {
-                    return true;
-                }
+        // Apply filters
+        if ($request->filled('year')) {
+            $students->whereHas('registration', fn($q) => $q->where('year', $request->year));
+        }
+        if ($request->filled('supervisor_id')) {
+            $students->whereHas('registration', fn($q) => $q->where('supervisor_id', $request->supervisor_id));
+        }
 
-                // If no registration, exclude from filtered results
-                if (!$reg) {
-                    return false;
-                }
+        // Sort and paginate
+        $studentsPaginated = $students->orderBy('created_at', 'desc')->paginate(10);
 
-                // Filter based on request
-                $match = true;
-                if ($request->filled('year')) {
-                    $match = $match && $reg->year == $request->input('year');
-                }
-                if ($request->filled('semester')) {
-                    $match = $match && $reg->semester == $request->input('semester');
-                }
-                if ($request->filled('supervisor_id')) {
-                    $match = $match && $reg->supervisor_id == $request->input('supervisor_id');
-                }
-
-                return $match;
-            });
-
-        // Pagination manually
-        $page = request()->get('page', 1);
-        $perPage = 10;
-        $studentsPaginated = new \Illuminate\Pagination\LengthAwarePaginator(
-            $students->forPage($page, $perPage),
-            $students->count(),
-            $perPage,
-            $page,
-            ['path' => request()->url(), 'query' => request()->query()]
-        );
-
-        $requiredDocuments = ['Proposal', 'SRS', 'FYP1 Report','Presentation Slide'];
-        $requirements = DocumentRequirement::all();
+        // Additional data
+        $requiredDocuments = ['Proposal', 'SRS', 'Final Report', 'Presentation Slide'];
+        $requirements = DocumentRequirement::all()->keyBy('title');
         $supervisors = User::where('usertype', 'supervisor')->get();
-        $totalStudents = $students->count();
+        $totalStudents = $studentsPaginated->total(); // total from paginator
 
         return view('admin.student_progress.index', compact(
             'studentsPaginated',
@@ -67,8 +56,11 @@ class StudentProgressController extends Controller
             'requirements',
             'supervisors',
             'totalStudents',
+            'semester'
         ));
     }
+
+
 
     /**
      * Download a document file.
@@ -85,7 +77,7 @@ class StudentProgressController extends Controller
         }
 
         $extension = pathinfo($filePath, PATHINFO_EXTENSION);
-        $filename = $document->input('title') . '.' . $extension;
+        $filename = $document->title . '.' . $extension;
 
         return response()->download(storage_path("app/public/{$filePath}"), $filename);
 

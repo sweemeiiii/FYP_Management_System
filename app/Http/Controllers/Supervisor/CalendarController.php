@@ -39,9 +39,9 @@ class CalendarController extends Controller
     public function storeEvent(Request $request)
     {
         $event = Event::create([
-            'title' => $request->input('title'),
-            'start' => $request->input('start'),
-            'end' => $request->input('end'),
+            'title' => $request->title,
+            'start' => $request->start,
+            'end' => $request->end,
             'user_id' => Auth::id()
         ]);
 
@@ -65,11 +65,11 @@ class CalendarController extends Controller
                          ->firstOrFail();
 
             // Convert ISO 8601 dates to MySQL format
-            $startDate = Carbon::parse($request->input('start'))->format('Y-m-d H:i:s');
-            $endDate = $request->input('end') ? Carbon::parse($request->input('end'))->format('Y-m-d H:i:s') : $startDate;
+            $startDate = Carbon::parse($request->start)->format('Y-m-d H:i:s');
+            $endDate = $request->end ? Carbon::parse($request->end)->format('Y-m-d H:i:s') : $startDate;
 
             $event->update([
-                'title' => $request->input('title'),
+                'title' => $request->title,
                 'start' => $startDate,
                 'end' => $endDate,
             ]);

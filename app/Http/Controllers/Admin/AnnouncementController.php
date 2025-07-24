@@ -44,8 +44,8 @@ class AnnouncementController extends Controller
         }
 
         Announcement::create([
-            'title' => $request->input('title'),
-            'message' => $request->input('message'),
+            'title' => $request->title,
+            'message' => $request->message,
             'document_path' => $path,
             'sent_at' => now(),
         ]);

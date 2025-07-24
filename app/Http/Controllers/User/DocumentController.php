@@ -18,6 +18,19 @@ class DocumentController extends Controller
         return view('user.documents.index', compact('documents', 'requirements'));
     }
 
+    public function show($id)
+    {
+        $document = Document::where('id', $id)
+            ->where('user_id', Auth::id())
+            ->first();
+
+        if (!$document) {
+            return redirect()->route('user.documents.index')->with('error', 'Document not found or unauthorized access!');
+        }
+
+        return response()->file(storage_path('app/public/' . $document->file_path));
+    }
+
     public function create()
     {
         $requirement = DocumentRequirement::orderBy('due_date', 'desc')->first(); 
@@ -51,12 +64,12 @@ class DocumentController extends Controller
         }
 
         // Update title
-        $document->title = $request->input('documentTitle');
+        $document->title = $request->documentTitle;
 
         // Check if a new file was uploaded
         if ($request->hasFile('documentFile')) {
             // Delete the old file from storage
-            Storage::delete('public/' . $document->input('file_path'));
+            Storage::delete('public/' . $document->file_path);
 
             // Store the new file and update the file path
             $document->file_path = $request->file('documentFile')->store('documents', 'public');
@@ -74,7 +87,7 @@ class DocumentController extends Controller
             'documentFile' => 'required|file|mimes:pdf',
         ]);
 
-        $requirement = DocumentRequirement::where('title', $request->input('documentTitle'))->first();
+        $requirement = DocumentRequirement::where('title', $request->documentTitle)->first();
         $dueDate = $requirement ? $requirement->due_date : null;
 
         $now = now();
@@ -84,7 +97,7 @@ class DocumentController extends Controller
 
         Document::create([
             'user_id' => Auth::id(),
-            'title' => $request->input('documentTitle'),
+            'title' => $request->documentTitle,
             'file_path' => $path,
             'submitted_at' => $now,
             'is_late' => $isLate,
@@ -107,7 +120,7 @@ class DocumentController extends Controller
         }
 
         // Delete the file from storage
-        Storage::delete('public/' . $document->input('file_path'));
+        Storage::delete('public/' . $document->file_path);
 
         // Delete the document from the database
         $document->delete();

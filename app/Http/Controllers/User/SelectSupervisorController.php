@@ -45,12 +45,12 @@ class SelectSupervisorController extends Controller
         if (!$latest) {
             $semester = 'Semester 1';
         }
-        elseif ($latest->input('status') === 'rejected') {
-            $semester = $latest->input('semester');
+        elseif ($latest->status === 'rejected') {
+            $semester = $latest->semester;
         }
-        elseif ($latest->input('status') === 'approved' && $latest->input('semester') === 'Semester 1') {
+        elseif ($latest->status === 'approved' && $latest->semester === 'Semester 1') {
             // Allow FYP2 only if 3 months have passed
-            $approvedDate = $latest->input('updated_at');
+            $approvedDate = $latest->updated_at;
             $cutoffDate = now()->subMonths(3);
 
             if ($approvedDate->gt($cutoffDate)) {
@@ -60,10 +60,10 @@ class SelectSupervisorController extends Controller
 
             $semester = 'Semester 2';
         }
-        elseif (in_array($latest->input('status'), ['pending', 'approved'])) {
+        elseif (in_array($latest->status, ['pending', 'approved'])) {
             return back()->with('error', 'You already have a registration awaiting approval or already approved.');
         }
-        elseif ($latest->input('semester') === 'Semester 2' && $latest->input('status') === 'approved') {
+        elseif ($latest->semester === 'Semester 2' && $latest->status === 'approved') {
             return back()->with('error', 'You have already completed both FYP1 and FYP2.');
         }
         else {
@@ -72,8 +72,8 @@ class SelectSupervisorController extends Controller
 
 
         // set limit for supervisor register 
-        $supervisorCount = Registration::where('supervisor_id', $request->input('supervisor_id'))
-            ->where('year', $request->input('year'))
+        $supervisorCount = Registration::where('supervisor_id', $request->supervisor_id)
+            ->where('year', $request->year)
             ->where('semester', $semester)
             ->whereIn('status', ['pending', 'approved'])
             ->count();
@@ -85,15 +85,15 @@ class SelectSupervisorController extends Controller
         // Register the student
         Registration::create([
             'student_id' => $studentId,
-            'supervisor_id' => $request->input('supervisor_id'),
+            'supervisor_id' => $request->supervisor_id,
             'status' => 'pending',
-            'year' => $request->input('year'),
+            'year' => $request->year,
             'semester' => $semester,
         ]);
 
-        User::where('id', $studentId)->update(['supervisor_id' => $request->input('supervisor_id')]);
+        User::where('id', $studentId)->update(['supervisor_id' => $request->supervisor_id]);
 
-        return redirect()->route('supervisor.register', $request->input('supervisor_id'))
+        return redirect()->route('supervisor.register', $request->supervisor_id)
             ->with('success', "Registration for $semester submitted successfully.");
     }
 

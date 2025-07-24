@@ -1,154 +1,142 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="text-xl font-semibold text-gray-800 leading-tight">
-            {{ __('View Student Progress') }}
+            {{ __('Student Progress') }}
         </h2>
     </x-slot>
 
-    <div class="py-4 px-6">
-        <div class="bg-white shadow rounded-lg p-6">
-            <h3 class="text-lg font-semibold mb-4">Student Progress Overview</h3>
-            <form method="GET" action="{{ route('admin.student_progress.index') }}" class="mb-4 grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Year</label>
-                    <input type="number" name="year" value="{{ request('year') }}" class="mt-1 block w-full border border-gray-300 rounded px-3 py-2">
-                </div>
+    <div class="py-6 max-w-7xl mx-auto sm:px-6 lg:px-8">
 
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">FYP</label>
-                    <select name="semester" class="form-select">
-                        <option value="">-- Select FYP --</option>
-                        <option value="Semester 1" {{ request('semester') == 'Semester 1' ? 'selected' : '' }}>FYP 1</option>
-                        <option value="Semester 2" {{ request('semester') == 'Semester 2' ? 'selected' : '' }}>FYP 2</option>
-                    </select>
-                </div>
+        {{-- Tabs for FYP1 and FYP2 --}}
+        <div class="mb-6 flex space-x-4">
+            <a href="{{ route('admin.student_progress.fyp1') }}"
+               class="{{ request()->is('admin/student-progress/fyp1') ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-800' }} px-4 py-2 rounded hover:bg-blue-500 hover:text-white transition">
+                FYP1
+            </a>
+            <a href="{{ route('admin.student_progress.fyp2') }}"
+               class="{{ request()->is('admin/student-progress/fyp2') ? 'bg-purple-600 text-white' : 'bg-gray-200 text-gray-800' }} px-4 py-2 rounded hover:bg-purple-500 hover:text-white transition">
+                FYP2
+            </a>
 
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Supervisor</label>
-                    <select name="supervisor_id" class="mt-1 block w-full border border-gray-300 rounded px-3 py-2">
-                        <option value="">-- Select Supervisor --</option>
-                        @foreach ($supervisors as $supervisor)
-                            <option value="{{ $supervisor->id }}" {{ request('supervisor_id') == $supervisor->id ? 'selected' : '' }}>
-                                {{ $supervisor->name }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
+            <div class="bg-gray-200 text-gray-700 font-medium px-4 py-2 rounded hover:bg-yellow-500 hover:text-white transition inline-block">
+                Total Students:
+                <span class="text-blue-600 font-bold group-hover:text-white"> {{ $totalStudents }}</span>
+            </div>
+        </div>
 
-                <div class="mt-4 flex justify-between items-center">
-                    <div class="flex space-x-2">
-                        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Filter</button>
-                        <a href="{{ route('admin.student_progress.index') }}" class="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700">Reset</a>
-                    </div>
+        {{-- Filter Form --}}
+        <form method="GET" class="mb-6 bg-white p-4 rounded shadow flex flex-wrap gap-4 items-center">
+            <div>
+                <label for="year" class="block text-sm font-medium text-gray-700">Year</label>
+                <select name="year" id="year" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    <option value="">All</option>
+                    @for ($y = now()->year; $y >= 2025; $y--)
+                        <option value="{{ $y }}" {{ request('year') == $y ? 'selected' : '' }}>{{ $y }}</option>
+                    @endfor
+                </select>
+            </div>
 
-                    <div class="text-gray-700 font-medium">
-                        Total Students: <span class="text-blue-600 font-bold"> {{ $totalStudents }}
-                    </div>
-                </div>
-            </form>
+            <div>
+                <label for="supervisor_id" class="block text-sm text-gray-600">Filter by Supervisor:</label>
+                <select name="supervisor_id" id="supervisor_id" class="border rounded px-3 py-1">
+                    <option value="">All Supervisors</option>
+                    @foreach ($supervisors as $supervisor)
+                        <option value="{{ $supervisor->id }}" {{ request('supervisor_id') == $supervisor->id ? 'selected' : '' }}>
+                            {{ $supervisor->name }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
 
-            <table class="min-w-full table-auto border border-gray-300">
+            <div class="mt-6">
+                <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
+                    Filter
+                </button>
+
+                <a href="{{ route(Route::currentRouteName()) }}"
+                class="ml-2 px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 transition">
+                    Reset
+                </a>
+            </div>
+        </form>
+
+        {{-- Student Table --}}
+        <div class="bg-white shadow rounded p-6">
+            <table class="min-w-full text-sm border">
                 <thead class="bg-gray-100">
-                    <tr>
+                    <tr class="text-left">
                         <th class="px-4 py-2 border">Student ID</th>
-                        <th class="px-4 py-2 border">Student Name</th>
+                        <th class="px-4 py-2 border">Name</th>
                         <th class="px-4 py-2 border">FYP</th>
-                        @foreach ($requiredDocuments as $doc)
+                        <th class="px-4 py-2 border">Supervisor</th>
+                        @foreach($requiredDocuments as $doc)
                             <th class="px-4 py-2 border">{{ $doc }}</th>
                         @endforeach
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach ($studentsPaginated as $student)
-
+                    @forelse ($studentsPaginated as $student)
+                        @php
+                            $fyp = $student->registrations->where('semester', request()->is('admin/student-progress/fyp1') ? 'Semester 1' : 'Semester 2')->first();
+                            $fypLabel = $fyp ? ('FYP' . ($fyp->semester === 'Semester 1' ? '1' : '2') . ' ' . $fyp->year) : 'N/A';
+                            $supervisor = $fyp && $fyp->supervisor ? $fyp->supervisor->name : '-';
+                            $badgeClass = $fyp && $fyp->semester === 'Semester 1' ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800';
+                            $docs = $student->documents->keyBy('title');
+                        @endphp
                         <tr>
                             <td class="px-4 py-2 border">{{ $student->student_id ?? 'N/A' }}</td>
                             <td class="px-4 py-2 border">{{ $student->name }}</td>
-                           {{-- @php
-                                $fyp1Registration = $student->registration()
-                                    ->where('semester', 'Semester 1')
-                                    ->first();
-
-                                $fypLabel = $fyp1Registration ? 'FYP1' : (optional($student->registration)->semester === 'Semester 2' ? 'FYP2' : 'N/A');
-                            @endphp --}}
-
-                            @php
-                                $fyp1 = $student->registrations->where('semester', 'Semester 1')->first();
-                                $fyp2 = $student->registrations->where('semester', 'Semester 2')->first();
-
-                                if ($fyp1) {
-                                    $fypLabel = 'FYP1 (' . $fyp1->year . ')';
-                                    $badgeClasses = 'bg-blue-100 text-blue-800';
-                                } elseif ($fyp2) {
-                                    $fypLabel = 'FYP2 (' . $fyp2->year . ')';
-                                    $badgeClasses = 'bg-purple-100 text-purple-800';
-                                } else {
-                                    $fypLabel = 'N/A';
-                                    $badgeClasses = 'bg-gray-100 text-gray-600';
-                                }
-                            @endphp
-
                             <td class="px-4 py-2 border text-center">
-                                <span class="text-xs font-medium px-2.5 py-0.5 rounded inline-block {{ $badgeClasses }}">
+                                <span class="text-xs font-medium px-2.5 py-0.5 rounded inline-block {{ $badgeClass }}">
                                     {{ $fypLabel }}
                                 </span>
                             </td>
 
-                            @foreach ($requiredDocuments as $doc)
+                            <td class="px-4 py-2 border">{{ $supervisor }}</td>
+
+                            @foreach($requiredDocuments as $doc)
                                 @php
-                                    $docKey = Str::lower(Str::replace(' ', '', $doc));
-                                    $matchedDoc = $student->documents->first(function ($submittedDoc) use ($docKey) {
-                                        $titleKey = Str::lower(Str::replace([' ', '_', '-'], '', $submittedDoc->title));
-                                        return Str::contains($titleKey, $docKey);
-                                    });
+                                    $submittedDoc = $docs->firstWhere('title', $doc);
+                                    $due = optional($requirements[$doc])->due_date;
+                                    $timestamp = $submittedDoc?->created_at;
+                                    $isLate = $submittedDoc && $due && $timestamp->gt($due);
                                 @endphp
-
                                 <td class="px-4 py-2 border text-center">
-                                    @php
-                                        $requirement = $requirements->firstWhere('title', $doc);
-                                        // $now = now();
-                                    @endphp
-
-                                    @if ($matchedDoc)
-                                        <div class="flex flex-col items-center space-y-1">
-                                            <a href="{{ asset('storage/' . $matchedDoc->file_path) }}" target="_blank" class="bg-blue-200 text-blue-600 px-2 py-1 rounded text-s hover:bg-blue-200">View</a>
-                                            <a href="{{ route('admin.document.download', $matchedDoc->id) }}" class="bg-green-200 text-green-600 px-2 py-1 rounded text-s hover:bg-green-200">Download</a>
-                                            
-                                            @php
-                                                $timestamp = $matchedDoc->submitted_at ?? $matchedDoc->created_at;
-                                            @endphp
-
-                                                <span class="text-xs {{ $matchedDoc->is_late ? 'text-red-600 font-semibold' : 'text-gray-500' }}">
-                                                    {{ $matchedDoc->is_late ? '⚠️ Submitted late on:' : '✅ Submitted on:' }}
-                                                    {{ \Carbon\Carbon::parse($timestamp)->format('Y-m-d H:i') }}
-                                                </span>
+                                    @if ($submittedDoc)
+                                        <a href="{{ route('admin.document.download', $submittedDoc->id) }}"
+                                        class="underline text-blue-600 hover:text-blue-800">
+                                            Download
+                                        </a>
+                                        <div class="mt-1 text-xs {{ $isLate ? 'text-red-600 font-semibold' : 'text-gray-500' }}">
+                                            {{ $isLate ? '⚠️ Submitted late on:' : '✅ Submitted on:' }}
+                                            {{ $timestamp->format('Y-m-d H:i') }}
                                         </div>
+                                    @else
+                                        <span class="text-yellow-600">Pending</span>
+                                    @endif
 
-                                        @elseif ($requirement && $requirement->due_date && now()->lt($requirement->due_date))
-                                            <div class="flex flex-col items-center space-y-1 text-yellow-600">
-                                                <span class="text-xl">🕒</span>
-                                                <span class="text-xs">Pending</span>
-                                                <span class="text-xs text-gray-500">Due: {{ optional($requirement->due_date)->format('d M Y') }}</span>
-                                            </div>
-                                        @else
-                                        <div class="flex-col items-center space-y-1">
-                                            <span class="text-sm">❌</span>
-                                            <span class="text-xs">Not Available</span>
-                                            @if ($requirement && $requirement->due_date)
-                                                <span class="text-xs text-gray-500">Was due: {{ $requirement->due_date->format('d M Y') }}</span>
-                                            @endif
+                                    @if ($due)
+                                        <div class="text-xs text-gray-500 mt-0.5">
+                                            📅 Due: {{ \Carbon\Carbon::parse($due)->format('d M Y') }}
                                         </div>
                                     @endif
                                 </td>
                             @endforeach
+
                         </tr>
-                    @endforeach
+                    @empty
+                        <tr>
+                            <td colspan="{{ 4 + count($requiredDocuments) }}" class="px-4 py-4 text-center text-gray-500">
+                                No students found.
+                            </td>
+                        </tr>
+                    @endforelse
                 </tbody>
             </table>
 
             {{-- Pagination --}}
-            <div class="mt-6 flex justify-center">
-                {{ $studentsPaginated->appends(request()->query())->links() }}
+            <div class="mt-6">
+                {{ $studentsPaginated->links() }}
             </div>
         </div>
     </div>
