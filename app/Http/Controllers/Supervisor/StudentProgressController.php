@@ -14,79 +14,6 @@ use Illuminate\Support\Facades\Auth;
 
 class StudentProgressController extends Controller
 {
-    // public function index(Request $request)
-    // {
-    //     $supervisorId = Auth::id();
-    //     $requiredDocuments = ['Proposal', 'SRS', 'Final Report','Presentation Slide'];
-
-    //     $requirements = DocumentRequirement::all()->keyBy('title');
-
-
-    //     $today = now();
-
-    //     // Base query: only get students under this supervisor
-    //     $query = Registration::where('supervisor_id', $supervisorId)
-    //                         ->where('status', 'approved')
-    //                         ->with('student');
-
-    //     // Apply filters
-    //     if ($request->filled('year')) {
-    //         $query->where('year', $request->year);
-    //     }
-
-    //     if ($request->filled('semester')) {
-    //         $query->where('semester', $request->semester);  // Match string exactly, e.g., "Semester 1"
-    //     }
-
-    //     $registrations = $query->get();
-
-    //     $progressData = [];
-
-    //     foreach ($registrations as $registration) {
-    //         $student = $registration->student;
-    //         $submittedDocs = Document::where('user_id', $student->id)->get();
-    //         $progress = [];
-
-    //         foreach ($requiredDocuments as $doc) {
-    //             $docKey = Str::lower(Str::replace(' ', '', $doc));
-    //             $matchedDoc = null;
-
-    //             foreach ($submittedDocs as $submittedDoc) {
-    //                 $titleKey = Str::lower(Str::replace([' ', '_', '-'], '', $submittedDoc->title));
-    //                 if (Str::contains($titleKey, $docKey)) {
-    //                     $matchedDoc = $submittedDoc;
-    //                     break;
-    //                 }
-    //             }
-
-    //             $dueDate = optional($requirements[$doc])->due_date;
-
-    //             $status = 'pending';
-    //             if ($matchedDoc) {
-    //                 $status = 'submitted';
-    //             } elseif ($dueDate && $today->gt($dueDate)) {
-    //                 $status = 'overdue';
-    //             }
-
-    //             $progress[$doc] = [
-    //                 'document' => $matchedDoc,
-    //                 'status' => $status,
-    //                 'due' => $dueDate,
-    //             ];
-    //         }
-
-    //         $progressData[] = [
-    //             'student' => $student,
-    //             'documents' => $progress,
-    //             'registration' => $registration,
-    //         ];
-    //     }
-
-    //     return view('supervisor.student_progress.index', compact('progressData', 'requiredDocuments'));
-    // }
-
-
-    
     public function index()
     {
         return redirect()->route('supervisor.student_progress.fyp1');
@@ -103,7 +30,7 @@ class StudentProgressController extends Controller
 
     protected function handleFYP(Request $request, $semester)
     {
-        $supervisorId = auth()->id();
+        $supervisorId = Auth::id();
 
         $students = User::with(['documents', 'registration', 'registration.supervisor'])
             ->where('usertype', 'user')
@@ -133,7 +60,6 @@ class StudentProgressController extends Controller
             'semester'
         ));
     }
-
 
     /**
      * Download a document file.
