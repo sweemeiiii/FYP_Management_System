@@ -6,12 +6,19 @@
     </x-slot>
 
     <div class="py-6 max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
-
-        {{-- Quick Access --}}
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-10">
-            <a href="{{ route('admin.requirements.index') }}" class="block bg-purple-500 hover:bg-purple-600 text-white font-semibold py-4 rounded-xl text-center shadow-md transition">
-                View Document Deadlines
-            </a>
+        <div class="bg-yellow-100 p-4 rounded-xl shadow-md mb-10">
+            <h3 class="text-lg font-bold mb-3 text-yellow-800">📒 Document Deadlines</h3>
+            @if ($documentRequirements->count())
+                <ul class="list-disc list-inside text-sm text-yellow-900 space-y-1">
+                    @foreach ($documentRequirements as $doc)
+                        <li>
+                            <strong>{{ $doc->title }}</strong> – Due: {{ \Carbon\Carbon::parse($doc->due_date)->format('d M Y') }}
+                        </li>
+                    @endforeach
+                </ul>
+            @else
+                <p class="text-sm text-gray-600">No document requirements at the moment.</p>
+            @endif
         </div>
 
         {{-- Upcoming Events --}}

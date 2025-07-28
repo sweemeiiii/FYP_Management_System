@@ -29,6 +29,7 @@ class UserController extends Controller
         $totalDocuments = DocumentRequirement::count();
         $submittedDocuments = Document::where('user_id', $user->id)->count();
         $lastSubmission = Document::where('user_id', $user->id)->latest('submitted_at')->first();
+        $documentRequirements = DocumentRequirement::select('title', 'due_date')->get();
 
         return view('user.dashboard', [
             'upcomingEvents' => $upcomingEvents,
@@ -37,6 +38,7 @@ class UserController extends Controller
             'totalDocuments' => $totalDocuments,
             'submittedDocuments' => $submittedDocuments,
             'lastUpdated' => optional($lastSubmission)->submitted_at,
+            'documentRequirements' => $documentRequirements,
         ]);
     }
 }
