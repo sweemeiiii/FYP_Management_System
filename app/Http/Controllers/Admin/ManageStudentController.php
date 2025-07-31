@@ -117,7 +117,8 @@ class ManageStudentController extends Controller
         $header = fgetcsv($file); // First row (column headers)
 
         // Clean header keys by trimming extra spaces
-        $header = array_map('trim', $header);
+        $header = array_map(fn($h) => strtolower(trim($h)), $header);
+
 
         $successCount = 0;
         $failCount = 0;
